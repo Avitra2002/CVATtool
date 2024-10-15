@@ -1,5 +1,6 @@
 import streamlit as st
 from PIL import Image
+# TODO: Plan model step by step 
 
 st.title("Object Segmentation")
 st.write("Segment objects within images using advanced models.")

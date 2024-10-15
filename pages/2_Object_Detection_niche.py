@@ -1,6 +1,6 @@
 import streamlit as st
 from PIL import Image
-
+# TODO: Plan model step by step 
 st.title("Object Detection - Niche Objects")
 st.write("Detect niche objects using specialized models.")
 

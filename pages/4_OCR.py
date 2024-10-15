@@ -1,5 +1,6 @@
 import streamlit as st
 from PIL import Image
+# TODO: Plan model step by step 
 
 st.title("Optical Character Recognition (OCR)")
 st.write("Extract text from images using OCR models.")

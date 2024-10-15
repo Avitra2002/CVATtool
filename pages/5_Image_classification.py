@@ -1,5 +1,6 @@
 import streamlit as st
 from PIL import Image
+# TODO: Plan model step by step 
 
 st.title("Image Classification")
 st.write("Classify images using pretrained models.")
