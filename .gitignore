@@ -1,1 +1,5 @@
 cvatenv/
+/files/*
+__pycache__/
+*.py[cod]
+*.pyc
