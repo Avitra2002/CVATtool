@@ -96,7 +96,7 @@ def run():
     model_options = ["YOLOv8", "Florence V2", "OWL-ViT", "YOLO World", "Grounding DINO"]
     model_tooltips = {
         "YOLOv8": "YOLOv5 is a family of object detection architectures and models pretrained on the COCO dataset.",
-        "Florence V2": "Florence V2 allows for one-to-one object detection but allows for a more discreptive object detection, like 'a green car' instead of just 'car', eg. vehicle at the left lane, watermarks near the borders of the image. Also singular and plural forms of the words matter, if you want to detect many objects of that label use plural form eg.'green cars'",
+        "Florence V2": "Florence V2 allows for one-to-one object detection but allows for a more discreptive object detection, like 'a green car' instead of just 'car', eg. vehicle at the left lane, watermarks near the borders of the image. Also singular and plural forms of the words matter, if you want to detect many objects of that label use plural form eg.'green cars'. Multiple classifications can also be done eg,'a green car or a bat' but since it is a one-to-one mapping so all the labels will be 'a green car or a bat' instead of 'a green car' and 'a bat' separately for respective objects",
         "OWL-ViT": "OWL-Vit is a object detection model for more open classes eg. cars, dog, cats instead of more descriptive and complex object eg. vehicle at the left lane, watermarks near the borders of the image. However it is great at indentifying all the objects of the class label.",
         "YOLO World": "Yolo Worlds ...",
         "Grounding DINO": "Grounding DINO...."
@@ -120,9 +120,8 @@ def run():
         conf_threshold=None #not applicable to Florence V2
         iou_threshold= None # Not applicable to Florence V2
         task_prompt= '<OPEN_VOCABULARY_DETECTION>'
-        custom_labels = st.text_input("Enter labels for object detection",placeholder="'green car'")
-        if custom_labels:
-            custom_labels_list = [label.strip() for label in custom_labels.split(",")]
+        custom_labels = st.text_input("Enter labels for object detection",placeholder="green car")
+        custom_labels_list = [custom_labels] #Open vocab is one to one mapping
 
 
     elif selected_model == "OWL-ViT":
@@ -143,8 +142,15 @@ def run():
 
 
     elif selected_model== "Grounding DINO":
-        conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.5)
-        iou_threshold = st.slider("IOU Threshold", 0.0, 1.0, 0.5, 0.05)
+        conf_threshold = st.slider("Object Detection Confidence Threshold:", 0.0, 1.0, 0.5)
+        iou_threshold = st.slider("Text Detection Confidence Threshold", 0.0, 1.0, 0.5, 0.05)
+        custom_labels_input= st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
+        custom_labels_list = [label.strip() for label in custom_labels_input.split(",")]
+        custom_labels_format = [f"a {label.strip()}" for label in custom_labels_list] 
+
+        custom_labels= ". ".join(custom_labels_format)+"."
+        print(f"florence input labels: {custom_labels}")
+
 
 
 

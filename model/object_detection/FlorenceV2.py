@@ -15,6 +15,9 @@ def run_florenceV2_model(img_path, task_prompt, text_input):
     """Run Florence V2 model for object detection."""
     st.write(f"Running Florence V2")
 
+    #Text input: custom labels
+    custom_labels_list = [label.strip() for label in text_input.split(",")]
+
     image= Image.open(img_path)
     if image.mode != 'RGB':
         image = image.convert('RGB')
@@ -35,20 +38,19 @@ def run_florenceV2_model(img_path, task_prompt, text_input):
     )
     
     generated_text = processor_florence.batch_decode(generated_ids, skip_special_tokens=False)[0]
-    parsed_answer = processor_florence.post_process_generation(generated_text, task="<OD>", image_size=(image.width, image.height))
+    parsed_answer = processor_florence.post_process_generation(generated_text, task=task_prompt, image_size=(image.width, image.height))
     print(f"Florence results: {parsed_answer}")
 
-    bboxes = parsed_answer.get('<OD>', {}).get('bboxes', [])
-    labels = parsed_answer.get('<OD>', {}).get('labels', [])
+    bboxes = parsed_answer.get('<OPEN_VOCABULARY_DETECTION>', {}).get('bboxes', [])
+    labels = parsed_answer.get('<OPEN_VOCABULARY_DETECTION>', {}).get('bboxes_labels', [])
 
     if not bboxes:
         return [], [], []
     
-    unique_labels = list(set(labels))  # Get unique labels
-    label_to_id = {label: idx for idx, label in enumerate(unique_labels)}  # Create a mapping
+    label_to_id = {label: idx for idx, label in enumerate(custom_labels_list)}  # Map custom labels to indices
 
-        # Convert labels to class IDs using the mapping
-    class_ids = [label_to_id[label] for label in labels]
+    # Convert detected labels to class IDs using the custom label mapping
+    class_ids = [label_to_id[label] for label in labels if label in label_to_id]
 
     formatted_boxes = [[int(coord) for coord in box] for box in bboxes]
     
