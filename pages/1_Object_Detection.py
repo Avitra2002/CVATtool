@@ -10,6 +10,7 @@ from model.object_detection.yolo_world import run_yolov_world
 from model.object_detection.Grounding_Dino import run_grounding_DINO
 import os
 from utils.create_yaml_file import create_yaml_file
+import yaml
 
 def check_confidence_score(confidence_threshold, scores):
     if not scores:  # Check if any scores were returned
@@ -34,8 +35,8 @@ def annotate_image_detection(img_path, confidence_threshold, iou_threshold, sele
 
     ## TODO: Check if all output of detection models are bouding boxes
 
-    if selected_model == "YOLOv8":
-        boxes, scores, labels = run_yolov8_model(img_path, confidence_threshold, iou_threshold)
+    if selected_model == "YOLOv11":
+        boxes, scores, labels = run_yolov8_model(img_path, confidence_threshold, custom_labels_list)
     elif selected_model == "Florence V2":
         boxes, scores, labels = run_florenceV2_model(img_path, task_prompt, custom_labels)
     elif selected_model == "OWL-ViT":
@@ -93,9 +94,9 @@ def run():
 
     #TODO: Update model description
     # Model selection
-    model_options = ["YOLOv8", "Florence V2", "OWL-ViT", "YOLO World", "Grounding DINO"]
+    model_options = ["YOLOv11", "Florence V2", "OWL-ViT", "YOLO World", "Grounding DINO"]
     model_tooltips = {
-        "YOLOv8": "YOLOv5 is a family of object detection architectures and models pretrained on the COCO dataset.",
+        "YOLOv11": "YOLOv11 is a family of object detection architectures and models pretrained on the COCO dataset.",
         "Florence V2": "Florence V2 allows for one-to-one object detection but allows for a more discreptive object detection, like 'a green car' instead of just 'car', eg. vehicle at the left lane, watermarks near the borders of the image. Also singular and plural forms of the words matter, if you want to detect many objects of that label use plural form eg.'green cars'. Multiple classifications can also be done eg,'a green car or a bat' but since it is a one-to-one mapping so all the labels will be 'a green car or a bat' instead of 'a green car' and 'a bat' separately for respective objects",
         "OWL-ViT": "OWL-Vit is a object detection model for more open classes eg. cars, dog, cats instead of more descriptive and complex object eg. vehicle at the left lane, watermarks near the borders of the image. However it is great at indentifying all the objects of the class label.",
         "YOLO World": "Yolo Worlds ...",
@@ -111,9 +112,24 @@ def run():
 
 
     # TODO: Update Dynamic input fields for each selected model
-    if selected_model == "YOLOv8":
+    if selected_model == "YOLOv11":
         conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.5)
-        iou_threshold = st.slider("IOU Threshold", 0.0, 1.0, 0.5, 0.05)
+        iou_threshold = None
+        def load_class_names(yaml_file):
+            with open(yaml_file, 'r') as file:
+                data = yaml.safe_load(file)
+                return [data['names'][i] for i in range(len(data['names']))]
+
+        # Load the class names from coco dataset
+        class_names = load_class_names('/Users/phonavitra/Desktop/CVATtool/CVATtool/coco.yaml')
+
+        # Create a multi-select dropdown
+        custom_labels_list = st.multiselect(
+            'Select the object classes:',
+            class_names
+        )
+        custom_labels=None
+
 
 
     elif selected_model == "Florence V2":
