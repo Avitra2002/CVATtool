@@ -27,7 +27,7 @@ def check_confidence_score(confidence_threshold, scores):
         st.info(f"The highest confidence level detected by the model for this image is {highest_confidence:.2f}.")
 
 
-def annotate_image_detection(img_path, confidence_threshold, iou_threshold, selected_model, task_folder_path,image_index,task_prompt=None,custom_labels=None):
+def annotate_image_detection(img_path, confidence_threshold, iou_threshold, selected_model, task_folder_path,image_index,task_prompt=None,custom_labels=None,custom_labels_list=None):
     """Run the selected model on the image and save YOLO format annotations."""
     image_cv = cv2.imread(img_path)
     image_cv = cv2.cvtColor(image_cv, cv2.COLOR_BGR2RGB)
@@ -44,7 +44,7 @@ def annotate_image_detection(img_path, confidence_threshold, iou_threshold, sele
     elif selected_model == "YOLO World":
         boxes, scores, labels = run_yolov_world(img_path, confidence_threshold, iou_threshold, custom_labels)
     elif selected_model== "Grounding DINO":
-        boxes, scores, labels = run_grounding_DINO(img_path, confidence_threshold, iou_threshold, custom_labels)
+        boxes, scores, labels = run_grounding_DINO(img_path, confidence_threshold, iou_threshold, custom_labels,custom_labels_list)
 
 
     labels_subfolder = os.path.join(task_folder_path, "labels")
@@ -236,7 +236,7 @@ def run():
     img_path = os.path.join(folder_path, "images", img_file)
     
     # Annotate the current image and display
-    annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_model, task_folder_path, st.session_state.image_index + 1, task_prompt,custom_labels)
+    annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_model, task_folder_path, st.session_state.image_index + 1, task_prompt,custom_labels,custom_labels_list)
 
     create_yaml_file(task_folder_path, custom_labels_list)
 
