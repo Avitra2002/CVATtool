@@ -42,7 +42,7 @@ def annotate_image_detection(img_path, confidence_threshold, iou_threshold, sele
         boxes, scores, labels = run_owlvit_model(image_cv, confidence_threshold, iou_threshold, custom_labels)
         check_confidence_score(confidence_threshold, scores)
     elif selected_model == "YOLO World":
-        boxes, scores, labels = run_yolov_world(img_path, confidence_threshold, iou_threshold, custom_labels)
+        boxes, scores, labels = run_yolov_world(img_path, confidence_threshold,custom_labels_list)
     elif selected_model== "Grounding DINO":
         boxes, scores, labels = run_grounding_DINO(img_path, confidence_threshold, iou_threshold, custom_labels,custom_labels_list)
 
@@ -68,7 +68,7 @@ def annotate_image_detection(img_path, confidence_threshold, iou_threshold, sele
             # YOLO format: [class_id, x_center, y_center, width, height] (normalized)
             yolo_annotation = f"{label} {(x_min + x_max) / 2 / image_cv.shape[1]} {(y_min + y_max) / 2 / image_cv.shape[0]} {(x_max - x_min) / image_cv.shape[1]} {(y_max - y_min) / image_cv.shape[0]}"
             
-            # Write annotation to file
+            
             f.write(yolo_annotation + '\n')
 
             # Annotate the image with bounding boxes and labels
@@ -126,7 +126,7 @@ def run():
 
     elif selected_model == "OWL-ViT":
         conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.6)
-        iou_threshold = st.slider("IOU Threshold", 0.0, 1.0, 0.5, 0.05)
+        iou_threshold = st.slider("IOU Threshold", 0.0, 1.0, 0.5, 0.05) #TODO: Figure out how IOU Threshold works for OWL-Vit
         custom_labels_input = st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
         custom_labels_list = [label.strip() for label in custom_labels_input.split(",")]
 
@@ -137,8 +137,11 @@ def run():
 
 
     elif selected_model == "YOLO World":
+        iou_threshold= None 
         conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.5)
-        iou_threshold = st.slider("IOU Threshold", 0.0, 1.0, 0.5, 0.05)
+        custom_labels_input= st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
+        custom_labels_list=[label.strip() for label in custom_labels_input.split(",")]
+        custom_labels=None
 
 
     elif selected_model== "Grounding DINO":
@@ -226,7 +229,7 @@ def run():
                     continue  # Skip this image if it has already been annotated
                 
                 # Annotate the image
-                annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_model, task_folder_path, index+1,task_prompt,custom_labels)
+                annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_model, task_folder_path, index+1,task_prompt,custom_labels,custom_labels_list)
 
             st.success("All images have been annotated.")
             return
