@@ -3,3 +3,4 @@ cvatenv/
 __pycache__/
 *.py[cod]
 *.pyc
+/polygonzone-main/*
