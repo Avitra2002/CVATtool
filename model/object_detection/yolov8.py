@@ -67,10 +67,6 @@ def run_yolov8_model(img_path, confidence_threshold, iou_threshold, custom_label
                 scores.append(score.item())
                 labels.append(int(label))
     else:
-
-
-        image = Image.open(img_path)
-        frame = np.array(image)
         zones=parse_string(zone)
         # zones = ast.literal_eval(zone)
 

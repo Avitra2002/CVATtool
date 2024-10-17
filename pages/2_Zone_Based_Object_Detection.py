@@ -14,10 +14,10 @@ def run():
     st.write("Detect objects at specific areas")
 
     # Model selection
-    zone_model_options = ["YOLOv11", "OWL-Vit","YOLO World"]
+    zone_model_options = ["YOLOv11", "OWL-ViT","YOLO World"]
     zone_model_tooltips = {
         "YOLOv11": "Custom Model A is trained specifically for niche objects.",
-        "OWL-Vit": "Custom Model B is optimized for small datasets.",
+        "OWL-ViT": "Custom Model B is optimized for small datasets.",
         "YOLO World": "Custom Model B is optimized for small datasets.",
     }
 
@@ -59,6 +59,8 @@ def run():
 
             if custom_labels_input.strip() == "":
                 st.warning("Custom labels cannot be empty. Please enter labels separated by commas.")
+            else:
+                custom_labels = [[f"a photo of a {label}" for label in custom_labels_list]]
 
 
     elif selected_zone_model == "YOLO World":
@@ -142,7 +144,7 @@ def run():
                     continue  # Skip this image if it has already been annotated
                 
                 # Annotate the image
-                annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_zone_model, task_folder_path, index+1,task_prompt=None,custom_labels=None,custom_labels_list=custom_labels_list,zone=zone)
+                annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_zone_model, task_folder_path, index+1,task_prompt=None,custom_labels=custom_labels,custom_labels_list=custom_labels_list,zone=zone)
 
             st.success("All images have been annotated.")
             return
@@ -152,7 +154,7 @@ def run():
     img_path = os.path.join(folder_path, "images", img_file)
 
     # Annotate the current image and display
-    annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_zone_model, task_folder_path, st.session_state.image_index + 1, task_prompt=None,custom_labels=None,custom_labels_list=custom_labels_list,zone=zone)
+    annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_zone_model, task_folder_path, st.session_state.image_index + 1, task_prompt=None,custom_labels=custom_labels,custom_labels_list=custom_labels_list,zone=zone)
 
     create_yaml_file(task_folder_path, custom_labels_list)
 
