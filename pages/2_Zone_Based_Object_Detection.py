@@ -53,7 +53,7 @@ def run():
 
     elif selected_zone_model == "OWL-ViT":
             conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.6)
-            iou_threshold = st.slider("IOU Threshold", 0.0, 1.0, 0.5, 0.05) #TODO: Figure out how IOU Threshold works for OWL-Vit
+            iou_threshold = st.slider("IOU Threshold", 0.0, 1.0, 0.05, 0.001) 
             custom_labels_input = st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
             custom_labels_list = [label.strip() for label in custom_labels_input.split(",")]
 
@@ -62,7 +62,7 @@ def run():
 
 
     elif selected_zone_model == "YOLO World":
-            iou_threshold= None 
+            iou_threshold= st.slider("IOU Threshold", 0.000, 1.000, 0.050, 0.001)  
             conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.5)
             custom_labels_input= st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
             custom_labels_list=[label.strip() for label in custom_labels_input.split(",")]

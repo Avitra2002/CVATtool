@@ -42,7 +42,7 @@ def annotate_image_detection(img_path, confidence_threshold, iou_threshold, sele
         boxes, scores, labels = run_owlvit_model(image_cv, confidence_threshold, iou_threshold, custom_labels,zone)
         check_confidence_score(confidence_threshold, scores)
     elif selected_model == "YOLO World":
-        boxes, scores, labels = run_yolov_world(img_path, confidence_threshold,custom_labels_list,zone)
+        boxes, scores, labels = run_yolov_world(img_path, confidence_threshold,iou_threshold,custom_labels_list,zone)
         check_confidence_score(confidence_threshold, scores)
     elif selected_model== "Grounding DINO":
         boxes, scores, labels = run_grounding_DINO(img_path, confidence_threshold, iou_threshold, custom_labels,custom_labels_list,zone)
