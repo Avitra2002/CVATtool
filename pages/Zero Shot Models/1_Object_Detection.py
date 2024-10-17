@@ -185,7 +185,6 @@ def run():
     create_yaml_file(task_folder_path, custom_labels_list)
 
 # Run the app
-if __name__ == '__main__':
-    run()
+run()
 
     
