@@ -11,7 +11,7 @@ torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 model_florence = AutoModelForCausalLM.from_pretrained("microsoft/Florence-2-base", torch_dtype=torch_dtype, trust_remote_code=True).to(device)
 processor_florence = AutoProcessor.from_pretrained("microsoft/Florence-2-base", trust_remote_code=True)
 
-def run_florenceV2_model(img_path, task_prompt, text_input):
+def run_florenceV2_model(img_path, task_prompt, text_input,zone):
     """Run Florence V2 model for object detection."""
     st.write(f"Running Florence V2")
 

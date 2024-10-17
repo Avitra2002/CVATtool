@@ -14,7 +14,7 @@ def clean_label(label):
     """Remove leading articles like 'a', 'an' from the label."""
     return label.lstrip('a ').lstrip('an ').strip()
 
-def run_grounding_DINO(img_path, confidence_threshold, iou_threshold, custom_labels,custom_labels_list):
+def run_grounding_DINO(img_path, confidence_threshold, iou_threshold, custom_labels,custom_labels_list,zone):
     image= Image.open(img_path)
     """Run Grounding DINO model and return detection results."""
     st.write(f"Running Grounding DINO with confidence threshold {confidence_threshold} and IOU {iou_threshold}")

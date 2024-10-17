@@ -45,3 +45,5 @@ def save_and_extract_zip(files_dir, uploaded_file, task_name):
 
    
     return folder_path
+
+#TODO: Process video as image frames for object detection

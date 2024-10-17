@@ -1,7 +1,7 @@
 import streamlit as st
 from ultralytics import YOLO
 
-def run_yolov_world(img_path, confidence_threshold,custom_label_list):
+def run_yolov_world(img_path, confidence_threshold,custom_label_list,zone):
     """Run YOLOv8 World and return results (boxes, scores, labels)."""
     model_yolo_world= YOLO("yolov8s-worldv2.pt")
     model_yolo_world.set_classes(custom_label_list)

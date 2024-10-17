@@ -18,7 +18,7 @@ processor_owl = OwlViTProcessor.from_pretrained("google/owlvit-base-patch32")
 model_owl = OwlViTForObjectDetection.from_pretrained("google/owlvit-base-patch32")
 
 
-def run_owlvit_model(image_cv, confidence_threshold, iou_threshold, custom_labels):
+def run_owlvit_model(image_cv, confidence_threshold, iou_threshold, custom_labels,zone):
     """Run OWL-ViT model and return results (boxes, scores, labels)."""
     # Convert the OpenCV image (BGR format) to PIL image (RGB format)
     pil_image = Image.fromarray(cv2.cvtColor(image_cv, cv2.COLOR_BGR2RGB))
