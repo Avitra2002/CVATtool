@@ -15,6 +15,7 @@ import yaml
 from utils.object_detection_annotation import annotate_image_detection
 
 def run():
+    st.set_page_config(page_title='Zero Shot Object Detection', layout='wide')
     st.title("Object Detection And Annotation")
     st.write("Detect objects in images using state-of-the-art models and save the labels for .")
 
@@ -34,157 +35,169 @@ def run():
 
     task_prompt=''
 
+    col_labels,col_img= st.columns(2)
+
+    with col_img:
+        st.write("ℹ️ Annotations will be shown here")
+
+    with col_labels:
 
 
-    # TODO: Update Dynamic input fields for each selected model
-    if selected_model == "YOLOv11":
-        conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.5)
-        iou_threshold = None
-        def load_class_names(yaml_file):
-            with open(yaml_file, 'r') as file:
-                data = yaml.safe_load(file)
-                return [data['names'][i] for i in range(len(data['names']))]
+        # TODO: Update Dynamic input fields for each selected model
+        if selected_model == "YOLOv11":
+            conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.5)
+            iou_threshold = None
+            def load_class_names(yaml_file):
+                with open(yaml_file, 'r') as file:
+                    data = yaml.safe_load(file)
+                    return [data['names'][i] for i in range(len(data['names']))]
 
-        # Load the class names from coco dataset
-        class_names = load_class_names('/Users/phonavitra/Desktop/CVATtool/CVATtool/coco.yaml')
+            # Load the class names from coco dataset
+            class_names = load_class_names('/Users/phonavitra/Desktop/CVATtool/CVATtool/coco.yaml')
 
-        # Create a multi-select dropdown
-        custom_labels_list = st.multiselect(
-            'Select the object classes:',
-            class_names
-        )
-        custom_labels=None
-
-
-
-    elif selected_model == "Florence V2":
-        conf_threshold=None #not applicable to Florence V2
-        iou_threshold= None # Not applicable to Florence V2
-        task_prompt= '<OPEN_VOCABULARY_DETECTION>'
-        custom_labels = st.text_input("Enter labels for object detection",placeholder="green car")
-        custom_labels_list = [custom_labels] #Open vocab is one to one mapping
-
-
-    elif selected_model == "OWL-ViT":
-        conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.6)
-        iou_threshold = st.slider("IOU Threshold", 0.0, 1.0, 0.5, 0.05) #TODO: Figure out how IOU Threshold works for OWL-Vit
-        custom_labels_input = st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
-        custom_labels_list = [label.strip() for label in custom_labels_input.split(",")]
-
-        if custom_labels_input.strip() == "":
-            st.warning("Custom labels cannot be empty. Please enter labels separated by commas.")
-        else:
-            custom_labels = [[f"a photo of a {label}" for label in custom_labels_list]]
-
-
-    elif selected_model == "YOLO World":
-        iou_threshold= None 
-        conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.5)
-        custom_labels_input= st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
-        custom_labels_list=[label.strip() for label in custom_labels_input.split(",")]
-        custom_labels=None
-
-
-    elif selected_model== "Grounding DINO":
-        conf_threshold = st.slider("Object Detection Confidence Threshold:", 0.0, 1.0, 0.5)
-        iou_threshold = st.slider("Text Detection Confidence Threshold", 0.0, 1.0, 0.5, 0.05)
-        custom_labels_input= st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
-        custom_labels_list = [label.strip() for label in custom_labels_input.split(",")]
-        custom_labels_format = [f"a {label.strip()}" for label in custom_labels_list] 
-
-        custom_labels= ". ".join(custom_labels_format)+"."
-        print(f"florence input labels: {custom_labels}")
+            # Create a multi-select dropdown
+            custom_labels_list = st.multiselect(
+                'Select the object classes:',
+                class_names
+            )
+            custom_labels=None
 
 
 
+        elif selected_model == "Florence V2":
+            conf_threshold=None #not applicable to Florence V2
+            iou_threshold= None # Not applicable to Florence V2
+            task_prompt= '<OPEN_VOCABULARY_DETECTION>'
+            custom_labels = st.text_input("Enter labels for object detection",placeholder="green car")
+            custom_labels_list = [custom_labels] #Open vocab is one to one mapping
 
-    task_name = st.text_input("Enter Task Name:", value="DefaultTask")
-    task_folder_path= f"files/{task_name}"
 
-    # Image upload
-    uploaded_files = st.file_uploader("Upload Images (or Zip  Folder)", accept_multiple_files=True, type=['png', 'jpg', 'jpeg','zip'])
+        elif selected_model == "OWL-ViT":
+            conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.6)
+            iou_threshold = st.slider("IOU Threshold", 0.0, 1.0, 0.5, 0.05) #TODO: Figure out how IOU Threshold works for OWL-Vit
+            custom_labels_input = st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
+            custom_labels_list = [label.strip() for label in custom_labels_input.split(",")]
 
-    files_dir= 'files'
-    folder_path = ""
-
-    if uploaded_files:
-        for uploaded_file in uploaded_files:
-            if uploaded_file.type == 'application/zip':
-                # Handle zip file
-                folder_path = save_and_extract_zip(files_dir,uploaded_file,task_name)
-                st.write(f"Extracted and saved files to: {folder_path}")
+            if custom_labels_input.strip() == "":
+                st.warning("Custom labels cannot be empty. Please enter labels separated by commas.")
             else:
-                # Handle images
-                folder_path = save_images(files_dir,uploaded_files,task_name)
-        st.write(f"Uploaded and saved images to: {folder_path}")
-
-    if not folder_path:
-        st.warning("Please upload images or zip file to proceed.")
-        return
-
-    # List files in the directory
-    st.write(f"Folder path:{folder_path}")
-    # image_files = [f for f in os.listdir(os.path.join(folder_path, "images")) if f.endswith(('png', 'jpg', 'jpeg'))]
-    image_files = sorted(os.listdir(os.path.join(folder_path, "images")))
+                custom_labels = [[f"a photo of a {label}" for label in custom_labels_list]]
 
 
-    if not image_files:
-        st.warning("No images found in the uploaded folder.")
-        return
+        elif selected_model == "YOLO World":
+            iou_threshold= None 
+            conf_threshold = st.slider("Confidence Threshold:", 0.0, 1.0, 0.5)
+            custom_labels_input= st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
+            custom_labels_list=[label.strip() for label in custom_labels_input.split(",")]
+            custom_labels=None
 
-    if "image_index" not in st.session_state:
-        st.session_state["image_index"] = 0
 
-    col1, col2, col3 = st.columns(3)
+        elif selected_model== "Grounding DINO":
+            conf_threshold = st.slider("Object Detection Confidence Threshold:", 0.0, 1.0, 0.5)
+            iou_threshold = st.slider("Text Detection Confidence Threshold", 0.0, 1.0, 0.5, 0.05)
+            custom_labels_input= st.text_input("Enter custom labels (comma-separated, e.g., cat,dog,car):", value="")
+            custom_labels_list = [label.strip() for label in custom_labels_input.split(",")]
+            custom_labels_format = [f"a {label.strip()}" for label in custom_labels_list] 
 
-    # Display status for images
-    if len(image_files) ==1:
-        st.warning("There is only 1 image. Next and Previous Button is disabled")
-    elif st.session_state.image_index==0:
-        st.warning('This is the first image.')
+            custom_labels= ". ".join(custom_labels_format)+"."
+            print(f"florence input labels: {custom_labels}")
 
-    elif st.session_state.image_index == len(image_files)-1:
-        st.warning('This is the last image.')
-    else:
-        st.info(f"Image {st.session_state.image_index + 1} of {len(image_files)}")
 
-    with col1:
-        st.button("Previous Image", on_click=lambda: st.session_state.update(image_index=max(0, st.session_state.image_index - 1)), 
-              disabled=st.session_state.image_index == 0)
 
-    with col2:
-        st.button("Next Image", on_click=lambda: st.session_state.update(image_index=min(len(image_files) - 1, st.session_state.image_index + 1)), 
-              disabled=st.session_state.image_index == len(image_files) - 1)
 
-    with col3:
-        if st.button("Annotate All"):
-            # Step 1: Annotate all images
-            for index, img_file in enumerate(image_files):
-                img_path = os.path.join(folder_path, "images", img_file)
-                annotation_filename = f"image_{index+1}.txt"  # Match with your annotation naming convention
-                annotation_path = os.path.join(task_folder_path, "labels", annotation_filename)
+        task_name = st.text_input("Enter Task Name:", value="DefaultTask")
+        task_folder_path= f"files/{task_name}"
 
-                # Check if the annotation already exists
-                if os.path.exists(annotation_path):
-                    st.write(f"Skipping annotation for {img_file} (already annotated).")
-                    continue  # Skip this image if it has already been annotated
-                
-                # Annotate the image
-                annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_model, task_folder_path, index+1,task_prompt,custom_labels,custom_labels_list)
+        # Image upload
+        uploaded_files = st.file_uploader("Upload Images (or Zip  Folder)", accept_multiple_files=True, type=['png', 'jpg', 'jpeg','zip'])
 
-            st.success("All images have been annotated.")
+        files_dir= 'files'
+        folder_path = ""
+
+        if uploaded_files:
+            for uploaded_file in uploaded_files:
+                if uploaded_file.type == 'application/zip':
+                    # Handle zip file
+                    folder_path = save_and_extract_zip(files_dir,uploaded_file,task_name)
+                    st.write(f"Extracted and saved files to: {folder_path}")
+                else:
+                    # Handle images
+                    folder_path = save_images(files_dir,uploaded_files,task_name)
+            st.write(f"Uploaded and saved images to: {folder_path}")
+
+        if not folder_path:
+            st.warning("Please upload images or zip file to proceed.")
             return
 
-    # Show current image
-    img_file = image_files[st.session_state.image_index]
-    img_path = os.path.join(folder_path, "images", img_file)
-    
-    # Annotate the current image and display
-    annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_model, task_folder_path, st.session_state.image_index + 1, task_prompt,custom_labels,custom_labels_list)
+        # List files in the directory
+        st.write(f"Folder path:{folder_path}")
+        # image_files = [f for f in os.listdir(os.path.join(folder_path, "images")) if f.endswith(('png', 'jpg', 'jpeg'))]
+        image_files = sorted(os.listdir(os.path.join(folder_path, "images")))
 
-    create_yaml_file(task_folder_path, custom_labels_list)
+
+        if not image_files:
+            st.warning("No images found in the uploaded folder.")
+            return
+        
+        if "image_index" not in st.session_state:
+            st.session_state["image_index"] = 0
+
+    with col_img:
+
+        col1, col2, col3 = st.columns(3)
+
+        # Display status for images
+        if len(image_files) ==1:
+            st.warning("There is only 1 image. Next and Previous Button is disabled")
+        elif st.session_state.image_index==0:
+            st.warning('This is the first image.')
+
+        elif st.session_state.image_index == len(image_files)-1:
+            st.warning('This is the last image.')
+        else:
+            st.info(f"Image {st.session_state.image_index + 1} of {len(image_files)}")
+
+        with col1:
+            st.button("Previous Image", on_click=lambda: st.session_state.update(image_index=max(0, st.session_state.image_index - 1)), 
+                disabled=st.session_state.image_index == 0)
+
+        with col2:
+            st.button("Next Image", on_click=lambda: st.session_state.update(image_index=min(len(image_files) - 1, st.session_state.image_index + 1)), 
+                disabled=st.session_state.image_index == len(image_files) - 1)
+
+        with col3:
+            if st.button("Annotate All"):
+                # Step 1: Annotate all images
+                for index, img_file in enumerate(image_files):
+                    img_path = os.path.join(folder_path, "images", img_file)
+                    annotation_filename = f"image_{index+1}.txt"  # Match with your annotation naming convention
+                    annotation_path = os.path.join(task_folder_path, "labels", annotation_filename)
+
+                    # Check if the annotation already exists
+                    if os.path.exists(annotation_path):
+                        st.write(f"Skipping annotation for {img_file} (already annotated).")
+                        continue  # Skip this image if it has already been annotated
+                    
+                    # Annotate the image
+                    annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_model, task_folder_path, index+1,task_prompt,custom_labels,custom_labels_list,All=True)
+
+                st.success("All images have been annotated.")
+                return
+
+
+        
+        # Show current image
+        img_file = image_files[st.session_state.image_index]
+        img_path = os.path.join(folder_path, "images", img_file)
+        
+        # Annotate the current image and display
+        annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_model, task_folder_path, st.session_state.image_index + 1, task_prompt,custom_labels,custom_labels_list)
+    
+
+        create_yaml_file(task_folder_path, custom_labels_list)
 
 # Run the app
+
 run()
 
     

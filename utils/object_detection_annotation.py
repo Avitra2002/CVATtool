@@ -27,7 +27,7 @@ def check_confidence_score(confidence_threshold, scores):
     else:
         st.info(f"The highest confidence level detected by the model for this image is {highest_confidence:.2f}.")
 
-def annotate_image_detection(img_path, confidence_threshold, iou_threshold, selected_model, task_folder_path,image_index,task_prompt=None,custom_labels=None,custom_labels_list=None,zone=None):
+def annotate_image_detection(img_path, confidence_threshold, iou_threshold, selected_model, task_folder_path,image_index,task_prompt=None,custom_labels=None,custom_labels_list=None,zone=None,All=False):
     """Run the selected model on the image and save YOLO format annotations."""
     image_cv = cv2.imread(img_path)
     image_cv = cv2.cvtColor(image_cv, cv2.COLOR_BGR2RGB)
@@ -100,6 +100,9 @@ def annotate_image_detection(img_path, confidence_threshold, iou_threshold, sele
     annotated_image_path = os.path.join(annotated_subfolder, img_basename + img_extension)
     cv2.imwrite(annotated_image_path, image_cv)
 
-    # Display the annotated image
-    st.image(image_cv, use_column_width=True)
-    st.write(f"Annotations saved to: {annotation_path}")
+    if All is False:
+        # Display the annotated image
+        st.image(image_cv, use_column_width=True)
+        st.write(f"Annotations saved to: {annotation_path}")
+    else:
+        st.info("Annotations saved")

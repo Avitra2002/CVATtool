@@ -144,7 +144,7 @@ def run():
                     continue  # Skip this image if it has already been annotated
                 
                 # Annotate the image
-                annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_zone_model, task_folder_path, index+1,task_prompt=None,custom_labels=custom_labels,custom_labels_list=custom_labels_list,zone=zone)
+                annotate_image_detection(img_path, conf_threshold, iou_threshold, selected_zone_model, task_folder_path, index+1,task_prompt=None,custom_labels=custom_labels,custom_labels_list=custom_labels_list,zone=zone,All=True)
 
             st.success("All images have been annotated.")
             return
